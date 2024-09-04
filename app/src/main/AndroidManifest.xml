@@ -12,6 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FalouComprouCerto"
         tools:targetApi="31">
+
+        <!-- Declarando a MainActivity corretamente -->
+        <activity
+            android:name=".CartActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.FalouComprouCerto">
+        </activity>
+
+        <!-- Declarando a CartActivity como a atividade principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -19,10 +29,10 @@
             android:theme="@style/Theme.FalouComprouCerto">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

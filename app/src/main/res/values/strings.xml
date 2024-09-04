@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">FalouComprouCerto</string>
+    <string name="product_image_desc">Imagem do produto</string>
+    <string name="remove_from_cart">Remover produto</string>
+    <string name="decrease_quantity">Decrease Quantity</string>
+    <string name="increase_quantity">Increase Quantity</string>
+    <string name="som_action">Som</string>
+    <string name="price_placeholder">R$</string>
+
 </resources>
