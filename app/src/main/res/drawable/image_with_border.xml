@@ -1,0 +1,36 @@
+<!-- res/drawable/image_with_border.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Sombra -->
+    <item>
+        <shape
+            android:shape="rectangle">
+            <solid android:color="#4D000000"/> <!-- Cor da sombra (preto com opacidade) -->
+            <padding
+                android:bottom="4dp"
+                android:left="4dp"
+                android:right="4dp"
+                android:top="4dp"/>
+        </shape>
+    </item>
+    <!-- Borda -->
+    <item
+        android:right="2dp"
+        android:left="2dp"
+        android:top="2dp"
+        android:bottom="2dp">
+        <shape
+            android:shape="rectangle">
+            <solid android:color="#FFFFFF"/> <!-- Cor de fundo do botão -->
+            <stroke
+                android:width="2dp"
+                android:color="#000000"/> <!-- Cor da borda -->
+            <corners android:radius="8dp"/> <!-- Cantos arredondados -->
+        </shape>
+    </item>
+    <!-- Imagem -->
+    <item>
+        <bitmap
+            android:src="@drawable/enter"
+            android:gravity="right"/>
+    </item>
+</layer-list>
