@@ -6,5 +6,7 @@
     <string name="increase_quantity">Increase Quantity</string>
     <string name="som_action">Som</string>
     <string name="price_placeholder">R$</string>
+    <string name="product_name_placeholder">Nome</string>
+
 
 </resources>

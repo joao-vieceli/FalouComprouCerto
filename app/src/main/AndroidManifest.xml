@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,15 +17,14 @@
         android:theme="@style/Theme.FalouComprouCerto"
         tools:targetApi="31">
 
-        <!-- Declarando a MainActivity corretamente -->
+        <activity
+            android:name=".ProductDetailActivity"
+            android:exported="false" />
         <activity
             android:name=".CartActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FalouComprouCerto">
-        </activity>
-
-        <!-- Declarando a CartActivity como a atividade principal -->
+            android:theme="@style/Theme.FalouComprouCerto" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -32,7 +35,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".HomeActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.FalouComprouCerto" />
     </application>
-
 </manifest>

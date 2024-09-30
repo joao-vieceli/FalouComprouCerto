@@ -1,9 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
     android:background="@drawable/background_gradient">
+
+    <!-- Preview da câmera, inicialmente oculto -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/viewFinder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" /> <!-- Inicialmente oculto -->
 
     <!-- Botão para abrir a câmera -->
     <Button
@@ -19,9 +27,6 @@
         android:text="" />
 
     <!-- Botão para ir para outra página -->
-
-    <!-- Imagem no canto inferior direito -->
-
     <Button
         android:id="@+id/buttonGoToAnotherPage"
         android:layout_width="wrap_content"
@@ -35,14 +40,14 @@
         android:text=""
         android:textColor="@android:color/black" />
 
+    <!-- Imagem no canto inferior esquerdo -->
     <ImageView
-        android:id="@+id/imageViewBottomRight"
+        android:id="@+id/imageViewBottomLeft"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="-20dp"
-        android:layout_marginEnd="-40dp"
-        android:src="@drawable/fone1" />
-
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/logo" />
 </RelativeLayout>
