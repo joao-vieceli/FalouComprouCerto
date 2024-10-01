@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "136964236592",
+    "firebase_url": "https://faloucomproucerto-default-rtdb.firebaseio.com",
+    "project_id": "faloucomproucerto",
+    "storage_bucket": "faloucomproucerto.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:136964236592:android:0f35f03f3106f8096c54f5",
+        "android_client_info": {
+          "package_name": "com.example.faloucomproucerto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuTMvqUlddE8HDXaYx9pKtlRWCAX4kjtc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

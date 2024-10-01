@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Sombra -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#00000000"/> <!-- Transparente -->
+            <corners android:radius="20dp"/>
+            <size android:width="100dp" android:height="100dp"/>
+            <padding android:left="4dp" android:right="4dp" android:top="4dp" android:bottom="4dp"/>
+            <gradient android:startColor="#80000000" android:endColor="#00000000" android:angle="90"/>
+        </shape>
+    </item>
+
+    <!-- Fundo do botão -->
+    <item android:bottom="4dp" android:left="4dp" android:right="4dp" android:top="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white"/>
+            <corners android:radius="20dp"/>
+        </shape>
+    </item>
+
+</layer-list>
