@@ -1,53 +1,81 @@
 
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
     android:background="@drawable/background_gradient">
 
     <!-- Preview da câmera, inicialmente oculto -->
+
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" /> <!-- Inicialmente oculto -->
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="16dp" />
+    <!-- Inicialmente oculto -->
 
     <!-- Botão para abrir a câmera -->
-    <Button
-        android:id="@+id/buttonOpenCamera"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="@drawable/button_background"
-        android:drawableTop="@drawable/codigo"
-        android:padding="15dp"
-        android:drawablePadding="-20dp"
-        android:textColor="@android:color/black"
-        android:text="" />
 
     <!-- Botão para ir para outra página -->
+
+    <!-- Imagem no canto inferior esquerdo -->
+
+    <Button
+        android:id="@+id/buttonOpenCamera"
+        android:layout_width="378dp"
+        android:layout_height="169dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/btn_background"
+        android:drawableTop="@drawable/codigo"
+        android:drawablePadding="-20dp"
+        android:padding="15dp"
+        android:text=""
+        android:textColor="@android:color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.254" />
+
     <Button
         android:id="@+id/buttonGoToAnotherPage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="122dp"
+        android:layout_height="106dp"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="21dp"
-        android:background="@drawable/button_background"
+        android:background="@drawable/btn_background"
         android:drawableTop="@drawable/carinho"
         android:drawablePadding="-15dp"
         android:padding="10dp"
         android:text=""
-        android:textColor="@android:color/black" />
+        android:textColor="@android:color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
-    <!-- Imagem no canto inferior esquerdo -->
     <ImageView
         android:id="@+id/imageViewBottomLeft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_width="105dp"
+        android:layout_height="80dp"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
-        android:src="@drawable/logo" />
-</RelativeLayout>
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/logo"
+        android:background="@drawable/btn_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+</androidx.constraintlayout.widget.ConstraintLayout>

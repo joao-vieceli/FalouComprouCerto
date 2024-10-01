@@ -43,10 +43,10 @@
         android:layout_marginEnd="344dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.312"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.991"
+        app:layout_constraintVertical_bias="0.992"
         app:srcCompat="@drawable/pessoa" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
