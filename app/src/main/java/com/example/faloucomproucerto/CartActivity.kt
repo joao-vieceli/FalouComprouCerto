@@ -1,9 +1,12 @@
 package com.example.faloucomproucerto
 
+import com.example.faloucomproucerto.utils.SpaceItemDecoration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.faloucomproucerto.adapter.CartAdapter
+import com.example.faloucomproucerto.model.Product
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -19,7 +22,11 @@ class CartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cart)
 
+        val spacingInPixels = resources.getDimensionPixelSize((R.dimen.item_spacing))
+
         recyclerView = findViewById(R.id.cart_recycler_view)
+        recyclerView.addItemDecoration(SpaceItemDecoration(spacingInPixels))
+
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         adapter = CartAdapter(cartProducts) { product ->

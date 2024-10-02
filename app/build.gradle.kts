@@ -95,4 +95,10 @@ dependencies {
     implementation("com.google.mlkit:barcode-scanning:16.2.0")
     implementation ("com.squareup.picasso:picasso:2.71828")
 
+    implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.4.1")
+    implementation("com.google.firebase:firebase-auth:22.1.1")
+
+
 }

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.FalouComprouCerto"
+        android:theme="@style/AppTheme.NoActionBar"
         tools:targetApi="31">
 
         <activity
@@ -24,7 +24,7 @@
             android:name=".CartActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FalouComprouCerto" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

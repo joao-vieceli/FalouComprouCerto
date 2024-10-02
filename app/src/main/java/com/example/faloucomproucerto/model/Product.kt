@@ -1,4 +1,4 @@
-package com.example.faloucomproucerto
+package com.example.faloucomproucerto.model
 
 import java.io.Serializable
 

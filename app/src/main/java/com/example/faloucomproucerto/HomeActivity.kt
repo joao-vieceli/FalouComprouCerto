@@ -1,6 +1,7 @@
 package com.example.faloucomproucerto
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -14,18 +15,25 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.example.faloucomproucerto.model.Product
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.database.ValueEventListener
+import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.Manifest;
+import android.widget.Toast
+import com.google.firebase.database.DatabaseReference
 
 class HomeActivity : AppCompatActivity() {
 
@@ -34,9 +42,14 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var previewView: PreviewView
     private lateinit var buttonOpenCamera: Button
     private lateinit var buttonGoToCart: Button
+    //temporario
+    private lateinit var database: DatabaseReference
+    private val db = FirebaseFirestore.getInstance()
 
     private var isProductDetailVisible = false // Flag para controlar a exibição da tela de detalhes
     private var isProductNotFoundMessageShown = false // Flag para controlar a exibição da mensagem de produto não encontrado
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,9 +57,18 @@ class HomeActivity : AppCompatActivity() {
 
         // Inicializa o scanner de código de barras
         val options = BarcodeScannerOptions.Builder()
-            .setBarcodeFormats(com.google.mlkit.vision.barcode.Barcode.FORMAT_ALL_FORMATS)
+            .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
             .build()
         barcodeScanner = BarcodeScanning.getClient(options)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                100
+            )
+        }
 
         // Executor para a câmera
         cameraExecutor = Executors.newSingleThreadExecutor()

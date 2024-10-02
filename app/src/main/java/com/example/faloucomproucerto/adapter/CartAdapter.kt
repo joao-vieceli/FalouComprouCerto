@@ -1,4 +1,4 @@
-package com.example.faloucomproucerto
+package com.example.faloucomproucerto.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +7,8 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.faloucomproucerto.model.Product
+import com.example.faloucomproucerto.R
 import com.squareup.picasso.Picasso
 
 class CartAdapter(
@@ -27,8 +29,8 @@ class CartAdapter(
     override fun getItemCount(): Int = products.size
 
     class CartViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val decreaseButton: ImageButton = itemView.findViewById(R.id.decrease_button)
-        private val increaseButton: ImageButton = itemView.findViewById(R.id.increase_button)
+//        private val decreaseButton: ImageButton = itemView.findViewById(R.id.decrease_button)
+//        private val increaseButton: ImageButton = itemView.findViewById(R.id.increase_button)
         private val productName: TextView = itemView.findViewById(R.id.product_name)
         private val productPrice: TextView = itemView.findViewById(R.id.product_price)
         private val productImage: ImageView = itemView.findViewById(R.id.product_image)

@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton // Importação correta
+import com.example.faloucomproucerto.model.Product
 import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
 
