@@ -44,7 +44,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var buttonGoToCart: Button
     //temporario
     private lateinit var database: DatabaseReference
-    private val db = FirebaseFirestore.getInstance()
+    private val db = FirebaseFirestore.getInstance("https://faloucomproucerto-default-rtdb.firebaseio.com/")
 
     private var isProductDetailVisible = false // Flag para controlar a exibição da tela de detalhes
     private var isProductNotFoundMessageShown = false // Flag para controlar a exibição da mensagem de produto não encontrado

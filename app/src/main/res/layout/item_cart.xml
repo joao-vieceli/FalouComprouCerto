@@ -21,57 +21,61 @@
         app:layout_constraintTop_toBottomOf="@+id/remove_button"
         app:layout_constraintWidth_percent="0.8" />
 
-    <!--    <ImageButton-->
-<!--        android:id="@+id/decrease_button"-->
-<!--        android:layout_width="60dp"-->
-<!--        android:layout_height="60dp"-->
-<!--        android:src="@drawable/menos"-->
-<!--        android:contentDescription="@string/decrease_quantity"-->
-<!--        android:background="?attr/selectableItemBackground"-->
-<!--        android:adjustViewBounds="true"-->
-<!--        android:scaleType="centerInside"-->
-<!--        android:importantForAccessibility="yes"-->
-<!--        app:layout_constraintEnd_toStartOf="@id/product_quantity"-->
-<!--        app:layout_constraintBottom_toBottomOf="@id/product_quantity"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="@id/product_quantity" />-->
+    <!-- novo -->
+    <ImageButton
+        android:id="@+id/decrease_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/menos"
+        android:contentDescription="@string/decrease_quantity"
+        android:background="?attr/selectableItemBackground"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside"
+        android:importantForAccessibility="yes"
+        app:layout_constraintEnd_toStartOf="@id/product_quantity"
+        app:layout_constraintBottom_toBottomOf="@id/product_quantity"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/product_quantity" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/product_quantity"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="30dp"-->
-<!--        android:layout_marginBottom="32dp"-->
-<!--        android:background="@drawable/textview_background"-->
-<!--        android:importantForAccessibility="yes"-->
-<!--        android:paddingStart="50dp"-->
-<!--        android:paddingTop="4dp"-->
-<!--        android:paddingEnd="50dp"-->
-<!--        android:paddingBottom="4dp"-->
-<!--        android:textAlignment="center"-->
-<!--        android:textColor="@android:color/black"-->
-<!--        android:textSize="30sp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toStartOf="@id/increase_button"-->
-<!--        app:layout_constraintHorizontal_bias="0.5"-->
-<!--        app:layout_constraintStart_toEndOf="@id/decrease_button"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/product_price"-->
-<!--        app:layout_constraintVertical_bias="1.0" />-->
+    <TextView
+        android:id="@+id/product_quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/textview_background"
+        android:importantForAccessibility="yes"
+        android:paddingStart="50dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="50dp"
+        android:paddingBottom="4dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/increase_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@id/decrease_button"
+        app:layout_constraintTop_toBottomOf="@+id/product_price"
+        app:layout_constraintVertical_bias="1.0" />
 
-<!--    <ImageButton-->
-<!--        android:id="@+id/increase_button"-->
-<!--        android:layout_width="60dp"-->
-<!--        android:layout_height="60dp"-->
-<!--        android:adjustViewBounds="true"-->
-<!--        android:background="?attr/selectableItemBackground"-->
-<!--        android:contentDescription="@string/increase_quantity"-->
-<!--        android:importantForAccessibility="yes"-->
-<!--        android:scaleType="centerInside"-->
-<!--        android:src="@drawable/mais"-->
-<!--        app:layout_constraintBottom_toBottomOf="@id/product_quantity"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toEndOf="@id/product_quantity"-->
-<!--        app:layout_constraintTop_toTopOf="@id/product_quantity" />-->
+
+    <ImageButton
+        android:id="@+id/increase_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:adjustViewBounds="true"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/increase_quantity"
+        android:importantForAccessibility="yes"
+        android:scaleType="centerInside"
+        android:src="@drawable/mais"
+        app:layout_constraintBottom_toBottomOf="@id/product_quantity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/product_quantity"
+        app:layout_constraintTop_toTopOf="@id/product_quantity" />
+
+    <!-- termina -->
 
     <TextView
         android:id="@+id/product_name"
@@ -94,7 +98,7 @@
     <TextView
         android:id="@+id/product_price"
         android:layout_width="321dp"
-        android:layout_height="43dp"
+        android:layout_height="48dp"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="50dp"
         android:background="@drawable/textview_background"
@@ -112,6 +116,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/product_name"
         app:layout_constraintVertical_bias="0.0" />
+
 
     <ImageButton
         android:id="@+id/remove_button"
