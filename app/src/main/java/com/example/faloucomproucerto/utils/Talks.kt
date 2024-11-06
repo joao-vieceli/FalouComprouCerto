@@ -4,7 +4,7 @@ class Talks {
 
     fun converteFalas(fala: String): String {
 
-        when("fala")
+        when(fala)
         {
             "Main" -> return "Bem vindo ao Falou Comprou! Nesta tela basta apenas falar 'Entrar', para começar suas compras!"
             "Home" -> return "Você está na tela de menu! Nesta tela você tem as opções ! comprar para ler o qrcode e compras para ir ao carrinho!"
