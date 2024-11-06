@@ -32,19 +32,38 @@ import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import android.Manifest;
+import android.os.Handler
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.widget.Toast
 import com.google.firebase.database.DatabaseReference
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener
+import com.example.faloucomproucerto.utils.Talks
+import java.util.Locale
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
+    private var tts: TextToSpeech? = null
 
     private lateinit var barcodeScanner: BarcodeScanner
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var previewView: PreviewView
     private lateinit var buttonOpenCamera: Button
     private lateinit var buttonGoToCart: Button
+    private lateinit var speechRecognizer: SpeechRecognizer
+    private val talks = Talks()
+
+    companion object {
+        private const val REQUEST_MICROPHONE_PERMISSION = 1
+        private const val KEYWORD_CART = "compras"
+        private const val KEYWORD_BAR = "comprar"
+        private const val RESTART_DELAY = 2000L
+    }
+
     //temporario
     private lateinit var database: DatabaseReference
-    private val db = FirebaseFirestore.getInstance("https://faloucomproucerto-default-rtdb.firebaseio.com/")
+    private val db = FirebaseFirestore.getInstance()
 
     private var isProductDetailVisible = false // Flag para controlar a exibição da tela de detalhes
     private var isProductNotFoundMessageShown = false // Flag para controlar a exibição da mensagem de produto não encontrado
@@ -60,6 +79,10 @@ class HomeActivity : AppCompatActivity() {
             .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
             .build()
         barcodeScanner = BarcodeScanning.getClient(options)
+
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+
+        tts = TextToSpeech(this, this)
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
@@ -91,8 +114,81 @@ class HomeActivity : AppCompatActivity() {
             val intent = Intent(this, CartActivity::class.java)
             startActivity(intent)
         }
+
+        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+
+            override fun onReadyForSpeech(params: Bundle?) {
+            }
+
+            override fun onBeginningOfSpeech() {
+            }
+
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+
+            override fun onError(error: Int)
+            {
+                println("Erro no reconhecimento de fala: $error")
+
+                Handler().postDelayed({
+                    when (error) {
+                        SpeechRecognizer.ERROR_NO_MATCH -> {
+                            startListening()
+                        }
+                        SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> {
+                            startListening()
+                        }
+                        SpeechRecognizer.ERROR_NETWORK_TIMEOUT,
+                        SpeechRecognizer.ERROR_NETWORK -> {
+                            Toast.makeText(this@HomeActivity, "Problema de rede, tentando novamente...", Toast.LENGTH_SHORT).show()
+                            Handler().postDelayed({ startListening() }, HomeActivity.RESTART_DELAY)
+                        }
+                        else -> {
+                            Toast.makeText(this@HomeActivity, "Ocorreu um erro, tentando novamente...", Toast.LENGTH_SHORT).show()
+                            Handler().postDelayed({ startListening() }, HomeActivity.RESTART_DELAY)
+                        }
+                    }
+                }, HomeActivity.RESTART_DELAY)
+
+            }
+
+            override fun onResults(results: Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                matches?.let {
+                    if (it.isNotEmpty()) {
+                        val recognizedText = it[0]
+                        if (recognizedText.contains(KEYWORD_BAR, ignoreCase = true)) {
+                            iniciarEscaneamento()
+                        } else if (recognizedText.contains(KEYWORD_CART, ignoreCase = true)) {
+                            speechRecognizer.destroy()
+                            inCart()
+                            return
+                        } else if (recognizedText.contains("voltar", ignoreCase = true)) {
+                            speechRecognizer.destroy()
+                            onReturn()
+                            return
+
+                        } else {
+                            restartListening()
+                        }
+                    }
+                }
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {}
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
+    }
+    private fun onReturn() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 
+    private fun inCart() {
+        val intent = Intent(this, CartActivity::class.java)
+        startActivity(intent)
+    }
     private fun iniciarEscaneamento() {
         buttonOpenCamera.visibility = View.GONE
         buttonGoToCart.visibility = View.GONE
@@ -145,9 +241,9 @@ class HomeActivity : AppCompatActivity() {
                 .addOnSuccessListener { barcodes ->
                     for (barcode in barcodes) {
                         val codigoBarras = barcode.rawValue
-                        if (codigoBarras != null && !isProductDetailVisible) { // Verifica a flag
+                        if (codigoBarras != null && !isProductDetailVisible) {
                             buscarProdutoPorCodigoBarras(codigoBarras)
-                            break // Para evitar processamento adicional
+                            break
                         }
                     }
                 }
@@ -156,7 +252,7 @@ class HomeActivity : AppCompatActivity() {
                     mostrarMensagem("Erro ao processar a imagem.")
                 }
                 .addOnCompleteListener {
-                    imageProxy.close() // Fechar o imageProxy após o processamento
+                    imageProxy.close()
                 }
         } else {
             imageProxy.close()
@@ -176,7 +272,7 @@ class HomeActivity : AppCompatActivity() {
                     } else {
                         if (!isProductNotFoundMessageShown) {
                             mostrarMensagem("Produto não encontrado.")
-                            isProductNotFoundMessageShown = true // Define a flag como verdadeira
+                            isProductNotFoundMessageShown = true
                         }
                     }
                 }
@@ -190,20 +286,16 @@ class HomeActivity : AppCompatActivity() {
     private fun exibirProduto(produto: Product?) {
         produto?.let {
             val intent = Intent(this, ProductDetailActivity::class.java)
-            intent.putExtra("product", it) // Passar o produto como Serializable
+            intent.putExtra("product", it)
             startActivity(intent)
 
-            // Define a flag como verdadeira para indicar que a tela de detalhes foi aberta
             isProductDetailVisible = true
 
-            // Oculta o PreviewView quando o produto é exibido
             previewView.visibility = View.GONE
 
-            // Reexibe os botões quando um produto é exibido
             buttonOpenCamera.visibility = View.VISIBLE
             buttonGoToCart.visibility = View.VISIBLE
 
-            // Reseta a flag da mensagem de produto não encontrado
             isProductNotFoundMessageShown = false
         }
     }
@@ -213,23 +305,85 @@ class HomeActivity : AppCompatActivity() {
             .setTitle("Aviso")
             .setMessage(mensagem)
             .setPositiveButton("OK") { dialog, _ ->
-                dialog.dismiss() // Fecha o diálogo
-                // Retorna para a HomeActivity
-                isProductNotFoundMessageShown = false // Reseta a flag
-                finish() // Fecha a atividade atual
-                startActivity(Intent(this, HomeActivity::class.java)) // Reabre a HomeActivity
+                dialog.dismiss()
+                isProductNotFoundMessageShown = false
+                finish()
+                startActivity(Intent(this, HomeActivity::class.java))
             }
             .show()
     }
 
     override fun onDestroy() {
+        tts?.stop()
+        tts?.shutdown()
         super.onDestroy()
-        cameraExecutor.shutdown() // Encerrar o executor da câmera ao destruir a Activity
+        cameraExecutor.shutdown()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        // Redefina a flag quando a tela de detalhes do produto for fechada
         isProductDetailVisible = false
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts?.setLanguage(Locale("pt", "BR"))
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                println("Idioma não suportado")
+            } else {
+                tts?.setSpeechRate(1.1f)
+                val voices = tts?.voices
+
+                voices?.firstOrNull { voice ->
+                    voice.locale == Locale("pt", "BR") && !voice.name.contains("pt-br-x-ptd-local")
+                }?.let { newVoice ->
+                    tts?.voice = newVoice
+                }
+
+                speak(talks.converteFalas("Home"))
+            }
+        } else {
+            println("Falha ao inicializar o TextToSpeech")
+        }
+    }
+
+    private fun speak(text: String) {
+        val utteranceId = System.currentTimeMillis().toString()
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+
+        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {
+            }
+
+            override fun onDone(utteranceId: String?) {
+                runOnUiThread {
+                    startListening()
+                }
+            }
+
+            override fun onError(utteranceId: String?) {
+                println("Erro na fala")
+            }
+        })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        tts?.stop()
+        speechRecognizer.destroy()
+    }
+
+    private fun restartListening() {
+        speechRecognizer.stopListening()
+        startListening()
+    }
+
+    private fun startListening() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Fale algo")
+
+        speechRecognizer.startListening(intent)
     }
 }

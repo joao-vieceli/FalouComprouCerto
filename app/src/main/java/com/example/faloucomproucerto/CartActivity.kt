@@ -1,6 +1,5 @@
 package com.example.faloucomproucerto
 
-import com.example.faloucomproucerto.R
 import com.example.faloucomproucerto.utils.SpaceItemDecoration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -17,14 +16,35 @@ import android.widget.TextView
 import android.widget.Toast
 import android.app.AlertDialog
 import android.content.Intent
+import android.os.Handler
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import android.widget.ImageButton
+import com.example.faloucomproucerto.utils.Talks
+import java.util.Locale
 
-class CartActivity : AppCompatActivity() {
+class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CartAdapter
     private val cartProducts = mutableListOf<Product>()
     private lateinit var totalPriceTextView: TextView
     private lateinit var finalizeButton: Button
+    private lateinit var talkButton: ImageButton
+    private var tts: TextToSpeech? = null
+    private val talks = Talks()
+    private lateinit var speechRecognizer: SpeechRecognizer
+
+    companion object {
+        private const val REQUEST_MICROPHONE_PERMISSION = 1
+        private const val KEYWORD_PRODUCTS = "produtos"
+        private const val KEYWORD_REPEAT = "repitir"
+        private const val KEYWORD_TOTAL = "total"
+        private const val RESTART_DELAY = 2000L
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +57,10 @@ class CartActivity : AppCompatActivity() {
 
         totalPriceTextView = findViewById(R.id.total_price)
         finalizeButton = findViewById(R.id.finalize_button)
+        talkButton = findViewById(R.id.talk_button);
+        tts = TextToSpeech(this, this)
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+
 
         adapter = CartAdapter(cartProducts,
             { product -> removeFromCart(product) },
@@ -51,6 +75,128 @@ class CartActivity : AppCompatActivity() {
         finalizeButton.setOnClickListener {
             finalizePurchase()
         }
+
+        talkButton.setOnClickListener{
+            talkForAllProductsInCar()
+        }
+
+        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+
+            override fun onReadyForSpeech(params: Bundle?) {
+            }
+
+            override fun onBeginningOfSpeech() {
+            }
+
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+
+            override fun onError(error: Int)
+            {
+                println("Erro no reconhecimento de fala: $error")
+
+                Handler().postDelayed({
+                    when (error) {
+                        SpeechRecognizer.ERROR_NO_MATCH -> {
+                            startListening()
+                        }
+                        SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> {
+                            startListening()
+                        }
+                        SpeechRecognizer.ERROR_NETWORK_TIMEOUT,
+                        SpeechRecognizer.ERROR_NETWORK -> {
+                            Toast.makeText(this@CartActivity, "Problema de rede, tentando novamente...", Toast.LENGTH_SHORT).show()
+                            Handler().postDelayed({ startListening() }, RESTART_DELAY)
+                        }
+                        else -> {
+                            Toast.makeText(this@CartActivity, "Ocorreu um erro, tentando novamente...", Toast.LENGTH_SHORT).show()
+                            Handler().postDelayed({ startListening() }, RESTART_DELAY)
+                        }
+                    }
+                }, RESTART_DELAY)
+
+            }
+
+            override fun onResults(results: Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                matches?.let {
+                    if (it.isNotEmpty()) {
+                        val recognizedText = it[0]
+                        if (recognizedText.contains(KEYWORD_PRODUCTS, ignoreCase = true)) {
+                            talkForAllProductsInCar()
+                        } else if(recognizedText.contains(KEYWORD_REPEAT, ignoreCase = true)) {
+                            speak(talks.converteFalas("Cart"))
+
+                        } else if(recognizedText.contains(KEYWORD_TOTAL, ignoreCase = true)) {
+                            valorTotal()
+
+                        } else if (recognizedText.contains("voltar", ignoreCase = true)) {
+                            speechRecognizer.destroy()
+                            onReturn()
+                            return
+
+                        } else {
+                            restartListening()
+                        }
+                    }
+                }
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {}
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
+    }
+
+    private fun valorTotal()
+    {
+        var textProduct = "Valor total: ";
+
+        val totalPrice = cartProducts.sumOf { it.preco * it.quantidade }
+
+        speak(textProduct + totalPrice + " reais")
+
+    }
+
+    private fun onReturn() {
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun restartListening() {
+        speechRecognizer.stopListening()
+        startListening()
+    }
+
+    private fun startListening() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Fale algo")
+
+        speechRecognizer.startListening(intent)
+    }
+
+    private fun talkForAllProductsInCar() {
+        var textProduct = "Lista de produtos: ";
+        val database = FirebaseDatabase.getInstance().reference
+        database.child("carrinho").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (productSnapshot in snapshot.children) {
+                    val product = productSnapshot.getValue(Product::class.java)
+                    if (product != null) {
+                        textProduct += " " + product.nome + " valor de " + product.preco + " reais , "
+                    }
+                }
+                adapter.notifyDataSetChanged()
+                updateTotalPrice()
+
+                speak(textProduct)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
     }
 
     private fun finalizePurchase() {
@@ -75,7 +221,7 @@ class CartActivity : AppCompatActivity() {
                     // Retorna para a tela inicial ou atividade desejada
                     val intent = Intent(this, MainActivity::class.java) // Substitua MainActivity pela sua tela inicial
                     startActivity(intent)
-                    finish() // Finaliza a CartActivity
+                    finish()
                 }
                 .addOnFailureListener {
                     Toast.makeText(this, "Erro ao finalizar a compra", Toast.LENGTH_SHORT).show()
@@ -83,10 +229,9 @@ class CartActivity : AppCompatActivity() {
         }
 
         builder.setNegativeButton("Não") { dialog, which ->
-            dialog.dismiss() // Apenas fecha o diálogo
+            dialog.dismiss()
         }
 
-        // Cria e exibe o diálogo
         val dialog = builder.create()
         dialog.show()
     }
@@ -107,7 +252,6 @@ class CartActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Tratamento de erro, se necessário
             }
         })
     }
@@ -146,12 +290,66 @@ class CartActivity : AppCompatActivity() {
         val database = FirebaseDatabase.getInstance().reference
         database.child("carrinho").child(product.id).setValue(product)
             .addOnSuccessListener {
-                // Não é necessário chamar notifyDataSetChanged()
             }
     }
 
     private fun updateTotalPrice() {
         val totalPrice = cartProducts.sumOf { it.preco * it.quantidade }
         totalPriceTextView.text = "Total: R$ %.2f".format(totalPrice)
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts?.setLanguage(Locale("pt", "BR"))
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                println("Idioma não suportado")
+            } else {
+                tts?.setSpeechRate(1.1f)
+                val voices = tts?.voices
+
+                voices?.firstOrNull { voice ->
+                    voice.locale == Locale("pt", "BR") && !voice.name.contains("pt-br-x-ptd-local")
+                }?.let { newVoice ->
+                    tts?.voice = newVoice
+                }
+
+                speak(talks.converteFalas("Cart"))
+            }
+        } else {
+            println("Falha ao inicializar o TextToSpeech")
+        }
+    }
+
+    private fun speak(text: String) {
+        val utteranceId = System.currentTimeMillis().toString()
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+
+        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {
+            }
+
+            override fun onDone(utteranceId: String?) {
+                runOnUiThread {
+                    startListening()
+                }
+            }
+
+            override fun onError(utteranceId: String?) {
+                println("Erro na fala")
+            }
+        })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        tts?.stop()
+        speechRecognizer.destroy()
+    }
+
+    override fun onDestroy() {
+        tts?.stop()
+        tts?.shutdown()
+        speechRecognizer.destroy()
+        super.onDestroy()
     }
 }
