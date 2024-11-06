@@ -67,9 +67,6 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
             } else {
                 productImage.setImageResource(R.drawable.produtos) // Imagem padrão se não houver URL
             }
-
-
-
         } else {
             Log.e("ProductDetailActivity", "Produto não encontrado na Intent.")
             finish() // Se não encontrar, fecha a atividade

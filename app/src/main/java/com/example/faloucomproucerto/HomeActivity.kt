@@ -41,6 +41,7 @@ import com.google.firebase.database.DatabaseReference
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener
 import com.example.faloucomproucerto.utils.Talks
+import com.google.firebase.database.Logger
 import java.util.Locale
 
 class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
@@ -74,6 +75,7 @@ class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        FirebaseDatabase.getInstance().setLogLevel(Logger.Level.DEBUG)
         // Inicializa o scanner de código de barras
         val options = BarcodeScannerOptions.Builder()
             .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
