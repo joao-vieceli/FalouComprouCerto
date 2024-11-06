@@ -141,14 +141,19 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
                     if (it.isNotEmpty()) {
                         val recognizedText = it[0]
                         if (recognizedText.contains("aceitar", ignoreCase = true)) {
+                            speechRecognizer.destroy()
                             product?.let { nonNullProduct ->
                                 addToCart(nonNullProduct)
-                                finish() // Volta para a MainActivity
                             }
+
+                        } else if (recognizedText.contains("recursar", ignoreCase = true)) {
                             speechRecognizer.destroy()
+                            onReturn()
                             return
                         } else if (recognizedText.contains("voltar", ignoreCase = true)) {
-
+                            speechRecognizer.destroy()
+                            onReturn()
+                            return
                         }else{
 
                             restartListening()
@@ -161,6 +166,12 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
             override fun onEvent(eventType: Int, params: Bundle?) {}
         })
 
+    }
+
+    private fun onReturn() {
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun addToCart(product: Product) {

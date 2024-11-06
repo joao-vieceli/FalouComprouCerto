@@ -41,8 +41,10 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
     companion object {
         private const val REQUEST_MICROPHONE_PERMISSION = 1
         private const val KEYWORD_PRODUCTS = "produtos"
-        private const val KEYWORD_REPEAT = "repitir"
+        private const val KEYWORD_REPEAT = "repetir"
         private const val KEYWORD_TOTAL = "total"
+        private const val KEYWORD_REMOVER = "remover"
+        private const val KEYWORD_FINALIZAR = "finalizar"
         private const val RESTART_DELAY = 2000L
     }
 
@@ -71,12 +73,11 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
 
         loadCartProducts()
 
-        // Configurar o clique no botão "Finalizar Compra"
         finalizeButton.setOnClickListener {
             finalizePurchase()
         }
 
-        talkButton.setOnClickListener{
+        talkButton.setOnClickListener {
             talkForAllProductsInCar()
         }
 
@@ -92,8 +93,7 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
             override fun onBufferReceived(buffer: ByteArray?) {}
             override fun onEndOfSpeech() {}
 
-            override fun onError(error: Int)
-            {
+            override fun onError(error: Int) {
                 println("Erro no reconhecimento de fala: $error")
 
                 Handler().postDelayed({
@@ -101,16 +101,27 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
                         SpeechRecognizer.ERROR_NO_MATCH -> {
                             startListening()
                         }
+
                         SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> {
                             startListening()
                         }
+
                         SpeechRecognizer.ERROR_NETWORK_TIMEOUT,
                         SpeechRecognizer.ERROR_NETWORK -> {
-                            Toast.makeText(this@CartActivity, "Problema de rede, tentando novamente...", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@CartActivity,
+                                "Problema de rede, tentando novamente...",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             Handler().postDelayed({ startListening() }, RESTART_DELAY)
                         }
+
                         else -> {
-                            Toast.makeText(this@CartActivity, "Ocorreu um erro, tentando novamente...", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@CartActivity,
+                                "Ocorreu um erro, tentando novamente...",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             Handler().postDelayed({ startListening() }, RESTART_DELAY)
                         }
                     }
@@ -125,11 +136,23 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
                         val recognizedText = it[0]
                         if (recognizedText.contains(KEYWORD_PRODUCTS, ignoreCase = true)) {
                             talkForAllProductsInCar()
-                        } else if(recognizedText.contains(KEYWORD_REPEAT, ignoreCase = true)) {
+                        } else if (recognizedText.contains(KEYWORD_REPEAT, ignoreCase = true)) {
                             speak(talks.converteFalas("Cart"))
 
-                        } else if(recognizedText.contains(KEYWORD_TOTAL, ignoreCase = true)) {
+                        } else if (recognizedText.contains(KEYWORD_TOTAL, ignoreCase = true)) {
                             valorTotal()
+
+                        } else if (recognizedText.contains(KEYWORD_REMOVER, ignoreCase = true)) {
+                            listAllProductsForRemove()
+
+                        } else if (recognizedText.contains("sim finalizar", ignoreCase = true)) {
+                            finalizarDontMessage()
+
+                        } else if (recognizedText.contains(KEYWORD_FINALIZAR, ignoreCase = true)) {
+                            speak("Você tem certeza que deseja finalizar a compra? Se sim, fale 'sim finalizar' se não fale 'não finalizar'")
+
+                        }  else if (recognizedText.contains("cinco", ignoreCase = true)) {
+                            speak("teste")
 
                         } else if (recognizedText.contains("voltar", ignoreCase = true)) {
                             speechRecognizer.destroy()
@@ -148,6 +171,57 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         })
     }
 
+    private fun listAllProductsForRemove() {
+        var textProduct = "Qual produto deseja remover? ";
+        val database = FirebaseDatabase.getInstance().reference
+        database.child("carrinho").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (productSnapshot in snapshot.children) {
+                    val product = productSnapshot.getValue(Product::class.java)
+                    if (product != null) {
+                        textProduct += " Código " + product.id + " nome " + product.nome + " valor de " + product.preco + " reais , "
+                    }
+                }
+                adapter.notifyDataSetChanged()
+                updateTotalPrice()
+
+                speak(textProduct + " diga o código do produto")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+    }
+
+    private fun finalizarDontMessage()
+
+    {
+            // Se o usuário clicar em "Sim", finalize a compra
+            val totalPrice = cartProducts.sumOf { it.preco * it.quantidade }
+            val database = FirebaseDatabase.getInstance().reference
+            database.child("carrinho").removeValue()
+            .addOnSuccessListener()
+            {
+                cartProducts.clear() // Limpa a lista local
+                adapter.notifyDataSetChanged() // Atualiza o RecyclerView
+                updateTotalPrice() // Atualiza o valor total para zero
+
+                // Exibe uma mensagem de confirmação e retorna à home
+                speak("Compra finalizada no valor de ".format(totalPrice) + "reais")
+
+
+                // Retorna para a tela inicial ou atividade desejada
+                val intent =
+                    Intent(this, MainActivity::class.java) // Substitua MainActivity pela sua tela inicial
+                startActivity(intent)
+                finish()
+            }
+            .addOnFailureListener()
+            {
+                Toast.makeText(this, "Erro ao finalizar a compra", Toast.LENGTH_SHORT).show()
+            }
+
+    }
     private fun valorTotal()
     {
         var textProduct = "Valor total: ";
