@@ -146,7 +146,7 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
                                 addToCart(nonNullProduct)
                             }
 
-                        } else if (recognizedText.contains("recursar", ignoreCase = true)) {
+                        } else if (recognizedText.contains("recusar", ignoreCase = true)) {
                             speechRecognizer.destroy()
                             onReturn()
                             return
@@ -172,6 +172,12 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        tts?.stop()
+        speechRecognizer.destroy()
     }
 
     private fun addToCart(product: Product) {

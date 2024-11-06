@@ -151,8 +151,27 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
                         } else if (recognizedText.contains(KEYWORD_FINALIZAR, ignoreCase = true)) {
                             speak("Você tem certeza que deseja finalizar a compra? Se sim, fale 'sim finalizar' se não fale 'não finalizar'")
 
-                        }  else if (recognizedText.contains("cinco", ignoreCase = true)) {
-                            speak("teste")
+                        }  else if (recognizedText.contains("número", ignoreCase = true)) {
+                            val resultText = recognizedText.toString()
+
+                            val regex = Regex("(?<=número\\s)(\\d+|um|dois|três|quatro|cinco|seis|sete|oito|nove|dez)", RegexOption.IGNORE_CASE)
+                            val matchResult = regex.find(resultText)
+
+// Verifique se encontrou um número
+                            val matchResultValue = matchResult?.value?.lowercase()
+                            val number = when (matchResultValue) {
+                                "um" -> 1
+                                "dois" -> 2
+                                "três" -> 3
+                                "quatro" -> 4
+                                "cinco" -> 5
+                                "seis" -> 6
+                                "sete" -> 7
+                                "oito" -> 8
+                                "nove" -> 9
+                                else -> matchResult?.value?.toInt()
+                            }
+                            removeForId(number.toString())
 
                         } else if (recognizedText.contains("voltar", ignoreCase = true)) {
                             speechRecognizer.destroy()
@@ -171,8 +190,29 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         })
     }
 
+    private fun removeForId(id:String){
+        val database = FirebaseDatabase.getInstance().reference
+
+        database.child("carrinho").child(id).get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    // Produto encontrado
+                    val product = snapshot.getValue(Product::class.java)
+                    if (product != null) {
+                        removeFromCart(product)
+                        speak("Produto " + product.nome + " foi removido!")
+                    }
+                } else {
+                    // Produto não encontrado
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Erro ao buscar o produto
+            }
+    }
+
     private fun listAllProductsForRemove() {
-        var textProduct = "Qual produto deseja remover? ";
+        var textProduct = "Quais dos produtos deseja remover?";
         val database = FirebaseDatabase.getInstance().reference
         database.child("carrinho").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -185,7 +225,7 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
                 adapter.notifyDataSetChanged()
                 updateTotalPrice()
 
-                speak(textProduct + " diga o código do produto")
+                speak(textProduct + ", diga 'número + o código do produto'")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -194,7 +234,6 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
     }
 
     private fun finalizarDontMessage()
-
     {
             // Se o usuário clicar em "Sim", finalize a compra
             val totalPrice = cartProducts.sumOf { it.preco * it.quantidade }

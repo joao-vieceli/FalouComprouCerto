@@ -213,4 +213,5 @@ class MainActivity : AppCompatActivity() , TextToSpeech.OnInitListener
         onInit(0)
         //recreate()
     }
+
 }
