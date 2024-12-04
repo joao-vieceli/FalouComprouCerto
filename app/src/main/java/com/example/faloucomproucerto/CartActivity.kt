@@ -63,7 +63,6 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         tts = TextToSpeech(this, this)
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 
-
         adapter = CartAdapter(cartProducts,
             { product -> removeFromCart(product) },
             { product -> increaseQuantity(product) },
@@ -157,7 +156,6 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
                             val regex = Regex("(?<=número\\s)(\\d+|um|dois|três|quatro|cinco|seis|sete|oito|nove|dez)", RegexOption.IGNORE_CASE)
                             val matchResult = regex.find(resultText)
 
-// Verifique se encontrou um número
                             val matchResultValue = matchResult?.value?.lowercase()
                             val number = when (matchResultValue) {
                                 "um" -> 1
@@ -196,18 +194,15 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         database.child("carrinho").child(id).get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
-                    // Produto encontrado
                     val product = snapshot.getValue(Product::class.java)
                     if (product != null) {
                         removeFromCart(product)
                         speak("Produto " + product.nome + " foi removido!")
                     }
                 } else {
-                    // Produto não encontrado
                 }
             }
             .addOnFailureListener { exception ->
-                // Erro ao buscar o produto
             }
     }
 
@@ -236,24 +231,17 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
     private fun finalizarDontMessage()
     {
             // Se o usuário clicar em "Sim", finalize a compra
-            val totalPrice = cartProducts.sumOf { it.preco * it.quantidade }
+            val totalPriceCart = cartProducts.sumOf { it.preco * it.quantidade }
             val database = FirebaseDatabase.getInstance().reference
             database.child("carrinho").removeValue()
             .addOnSuccessListener()
             {
-                cartProducts.clear() // Limpa a lista local
-                adapter.notifyDataSetChanged() // Atualiza o RecyclerView
-                updateTotalPrice() // Atualiza o valor total para zero
+                cartProducts.clear()
+                adapter.notifyDataSetChanged()
+                updateTotalPrice()
 
-                // Exibe uma mensagem de confirmação e retorna à home
-                speak("Compra finalizada no valor de ".format(totalPrice) + "reais")
+                speak("Compra finalizada no valor de " + totalPriceCart + "reais")
 
-
-                // Retorna para a tela inicial ou atividade desejada
-                val intent =
-                    Intent(this, MainActivity::class.java) // Substitua MainActivity pela sua tela inicial
-                startActivity(intent)
-                finish()
             }
             .addOnFailureListener()
             {
@@ -298,7 +286,7 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
                 for (productSnapshot in snapshot.children) {
                     val product = productSnapshot.getValue(Product::class.java)
                     if (product != null) {
-                        textProduct += " " + product.nome + " valor de " + product.preco + " reais , "
+                        textProduct +=  "" + product.quantidade + " " + product.nome + " valor de " + product.quantidade * product.preco + " reais , "
                     }
                 }
                 adapter.notifyDataSetChanged()
@@ -331,10 +319,8 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
                     // Exibe uma mensagem de confirmação e retorna à home
                     Toast.makeText(this, "Compra finalizada no valor: R$ %.2f".format(totalPrice), Toast.LENGTH_SHORT).show()
 
-                    // Retorna para a tela inicial ou atividade desejada
-                    val intent = Intent(this, MainActivity::class.java) // Substitua MainActivity pela sua tela inicial
-                    startActivity(intent)
-                    finish()
+                    speak("Compra finalizada no valor: R$ %.2f".format(totalPrice));
+
                 }
                 .addOnFailureListener {
                     Toast.makeText(this, "Erro ao finalizar a compra", Toast.LENGTH_SHORT).show()
@@ -433,6 +419,13 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         }
     }
 
+    private fun inMain()
+    {
+        val intent = Intent(this, MainActivity::class.java) // Substitua MainActivity pela sua tela inicial
+        startActivity(intent)
+        finish()
+    }
+
     private fun speak(text: String) {
         val utteranceId = System.currentTimeMillis().toString()
         tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
@@ -443,7 +436,13 @@ class CartActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
 
             override fun onDone(utteranceId: String?) {
                 runOnUiThread {
+                    if(text.contains("Compra finalizada"))
+                    {
+                        inMain()
+                    }
+
                     startListening()
+
                 }
             }
 

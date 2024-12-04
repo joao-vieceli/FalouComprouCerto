@@ -51,6 +51,7 @@ class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var previewView: PreviewView
     private lateinit var buttonOpenCamera: Button
+    private lateinit var buttonOpenCameraIa: Button
     private lateinit var buttonGoToCart: Button
     private lateinit var speechRecognizer: SpeechRecognizer
     private val talks = Talks()
@@ -59,15 +60,15 @@ class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         private const val REQUEST_MICROPHONE_PERMISSION = 1
         private const val KEYWORD_CART = "compras"
         private const val KEYWORD_BAR = "comprar"
+        private const val KEYWORD_INOVACAO = "inovação"
         private const val RESTART_DELAY = 2000L
     }
 
-    //temporario
     private lateinit var database: DatabaseReference
     private val db = FirebaseFirestore.getInstance()
 
-    private var isProductDetailVisible = false // Flag para controlar a exibição da tela de detalhes
-    private var isProductNotFoundMessageShown = false // Flag para controlar a exibição da mensagem de produto não encontrado
+    private var isProductDetailVisible = false
+    private var isProductNotFoundMessageShown = false
 
 
 
@@ -75,7 +76,6 @@ class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        // Inicializa o scanner de código de barras
         val options = BarcodeScannerOptions.Builder()
             .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
             .build()
@@ -94,23 +94,24 @@ class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
             )
         }
 
-        // Executor para a câmera
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        // Inicializa elementos da UI
         previewView = findViewById(R.id.viewFinder)
         buttonOpenCamera = findViewById(R.id.buttonOpenCamera)
+        buttonOpenCameraIa = findViewById(R.id.buttonOpenCameraIa)
         buttonGoToCart = findViewById(R.id.buttonGoToAnotherPage)
 
-        // Inicializa o PreviewView como invisível
         previewView.visibility = View.GONE
 
-        // Configurar o botão para iniciar a câmera
         buttonOpenCamera.setOnClickListener {
             iniciarEscaneamento()
         }
 
-        // Configurar o botão para abrir o carrinho
+        buttonOpenCameraIa.setOnClickListener {
+            val intent = Intent(this, CameraActivity::class.java)
+            startActivity(intent)
+        }
+
         buttonGoToCart.setOnClickListener {
             val intent = Intent(this, CartActivity::class.java)
             startActivity(intent)
@@ -165,7 +166,13 @@ class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
                             speechRecognizer.destroy()
                             inCart()
                             return
-                        } else if (recognizedText.contains("voltar", ignoreCase = true)) {
+                        } else if(recognizedText.contains(KEYWORD_INOVACAO, ignoreCase = true))
+                        {
+                            speechRecognizer.destroy()
+                            inInovaca()
+                            return
+                        }
+                        else if (recognizedText.contains("voltar", ignoreCase = true)) {
                             speechRecognizer.destroy()
                             onReturn()
                             return
@@ -190,9 +197,16 @@ class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         val intent = Intent(this, CartActivity::class.java)
         startActivity(intent)
     }
+
+    private fun inInovaca() {
+        val intent = Intent(this, CameraActivity::class.java)
+        startActivity(intent)
+    }
+
     private fun iniciarEscaneamento() {
         buttonOpenCamera.visibility = View.GONE
         buttonGoToCart.visibility = View.GONE
+        buttonOpenCameraIa.visibility = View.GONE
         previewView.visibility = View.VISIBLE
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -200,26 +214,21 @@ class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
 
-            // Cria uma pré-visualização
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(previewView.surfaceProvider)
             }
 
-            // ImageAnalysis para processar as imagens de escaneamento
             val imageAnalysis = ImageAnalysis.Builder().build().also {
                 it.setAnalyzer(cameraExecutor) { imageProxy ->
                     processImage(imageProxy)
                 }
             }
 
-            // Selecionar a câmera traseira
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
-                // Desvincula todas as câmeras antes de reanexar
                 cameraProvider.unbindAll()
 
-                // Vincular câmera à lifecycleOwner
                 cameraProvider.bindToLifecycle(
                     this as LifecycleOwner,
                     cameraSelector,
@@ -296,6 +305,7 @@ class HomeActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
 
             buttonOpenCamera.visibility = View.VISIBLE
             buttonGoToCart.visibility = View.VISIBLE
+            buttonOpenCameraIa.visibility = View.VISIBLE
 
             isProductNotFoundMessageShown = false
         }

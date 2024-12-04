@@ -28,6 +28,7 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
     private lateinit var buttonAdd: AppCompatImageButton // Alterado para AppCompatImageButton
     private lateinit var buttonDecline: AppCompatImageButton // Alterado para AppCompatImageButton
     private var nome = ""
+    private var preco = ""
 
     private var tts: TextToSpeech? = null
     private lateinit var speechRecognizer: SpeechRecognizer
@@ -50,47 +51,43 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
         tts = TextToSpeech(this, this)
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 
-        // Recebe o produto da Intent
         val product = intent.getSerializableExtra("product") as? Product
         if (product != null) {
-            // Exibe os dados do produto
             productName.text = product.nome
             productPrice.text = "R$ ${product.preco}"
 
             nome = product.nome
+            preco ="R$ ${product.preco}"
             // Carrega a imagem usando Picasso
             if (product.imageUrl.isNotEmpty()) {
                 Picasso.get()
                     .load(product.imageUrl)
-                    .error(R.drawable.produtos)  // Imagem padrão caso ocorra erro ao carregar
+                    .error(R.drawable.produtos)
                     .into(productImage)
             } else {
-                productImage.setImageResource(R.drawable.produtos) // Imagem padrão se não houver URL
+                productImage.setImageResource(R.drawable.produtos)
             }
         } else {
             Log.e("ProductDetailActivity", "Produto não encontrado na Intent.")
-            finish() // Se não encontrar, fecha a atividade
+            finish()
         }
 
-        // Configura o clique nos botões
         buttonAdd.setOnClickListener {
             product?.let { nonNullProduct ->
                 addToCart(nonNullProduct)
-                finish() // Volta para a MainActivity
+                finish()
             } ?: run {
                 Toast.makeText(this, "Produto não encontrado.", Toast.LENGTH_SHORT).show()
             }
         }
 
         buttonDecline.setOnClickListener {
-            // Mostra uma mensagem de confirmação ou feedback
             Toast.makeText(this, "Produto recusado.", Toast.LENGTH_SHORT).show()
 
-            // Iniciar a HomeActivity
             val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP // Limpa as atividades anteriores
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
-            finish() // Fecha a ProductDetailActivity
+            finish()
         }
 
 
@@ -144,6 +141,7 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
                             }
 
                         } else if (recognizedText.contains("recusar", ignoreCase = true)) {
+                            //speak("Produto recusado!")
                             speechRecognizer.destroy()
                             onReturn()
                             return
@@ -181,8 +179,9 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
         val database = FirebaseDatabase.getInstance().reference
         database.child("carrinho").child(product.id).setValue(product)
             .addOnSuccessListener {
+                speak("Produto adicionado!")
                 Toast.makeText(this, "Produto adicionado ao carrinho", Toast.LENGTH_SHORT).show()
-                goToHomeActivity()  // Navega de volta para HomeActivity
+                goToHomeActivity()
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Erro ao adicionar ao carrinho", Toast.LENGTH_SHORT).show()
@@ -211,7 +210,7 @@ class ProductDetailActivity : AppCompatActivity() , TextToSpeech.OnInitListener 
                     tts?.voice = newVoice
                 }
 
-                speak("Produto selecionado " + nome + " fale aceitar para aceitar o produto ou recusar para recusalo")
+                speak("Produto selecionado " + nome + " preço de " + preco + " deseja aceitar ou recusar?")
             }
         } else {
             println("Falha ao inicializar o TextToSpeech")

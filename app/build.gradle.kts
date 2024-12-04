@@ -44,6 +44,7 @@ android {
     buildFeatures {
         viewBinding = true
         compose = true
+        mlModelBinding = true
     }
 
     composeOptions {
@@ -100,5 +101,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:24.4.1")
     implementation("com.google.firebase:firebase-auth:22.1.1")
 
+
+    implementation("org.tensorflow:tensorflow-lite-support:0.1.0")
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.1.0")
 
 }
